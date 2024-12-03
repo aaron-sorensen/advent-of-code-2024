@@ -1,29 +1,48 @@
 import fs from'fs'
 
 const main = () => {
-    let leftList = [], rightList = []
-    fs.readFileSync('./src/day-1.txt').toString().split("\n").forEach(line => {
-        leftList.push(parseInt(line.split('   ')[0]))
-        rightList.push(parseInt(line.split('   ')[1]))
-    });
-    leftList.sort()
-    rightList.sort()
+    let reports = fs.readFileSync('./src/day-2.txt')
+    .toString()
+    .split("\n")
+    .map((report) => report.split(' ')
+    .map(x => parseInt(x)))
 
-    let total = 0;
+    let safeReports = 0;
 
-    for(let i = 0; i< leftList.length; i++){
-        const numberToCount = leftList[i]
-        let count = 0;
-        for(let j = 0; j< leftList.length; j++){
-            if(rightList[j] === numberToCount){
-                count++
-            }
-         }
-         total += count * numberToCount
-
+    for (let i = 0; i < reports.length; i++) {
+        if (determineIfSafe(reports[i])) {
+            safeReports++
+        }
     }
+    console.log(safeReports)
 
-    console.log(total)
+}
+
+const determineIfSafe = (report: number[]) => { 
+    let direction = 0
+    let safe = true
+    for (let i =0; i < report.length-1; i++) {
+        if (report[i] > report[i+1]) { // decreasing
+            if(direction === 0) {
+                direction = -1
+            } 
+            if (direction === 1 || Math.abs(report[i] - report[i+1]) > 3) {
+                safe = false
+                break
+            } 
+        } else if (report[i] < report[i+1]) { // increasing
+            if(direction === 0) {
+                direction = 1
+            } 
+            if (direction === -1 || Math.abs(report[i] - report[i+1]) > 3) {
+                safe = false
+                break
+            } 
+        } else {
+            safe = false
+        }
+    }
+    return safe
 }
 
 main()
