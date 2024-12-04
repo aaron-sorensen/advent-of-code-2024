@@ -12,6 +12,18 @@ const main = () => {
     for (let i = 0; i < reports.length; i++) {
         if (determineIfSafe(reports[i])) {
             safeReports++
+        } else {
+            for (let j = 0; j < reports[i].length; j++) {
+                // zip through splices of array to determine if safe
+                let subReport = [...reports[i]]
+                subReport.splice(j, 1)
+                if (determineIfSafe(subReport)) {
+                    console.log(subReport)
+                    console.log(`Report ${i}, is safe with ${reports[i][j]} removed`)
+                    safeReports++
+                    break
+                }
+            }
         }
     }
     console.log(safeReports)
