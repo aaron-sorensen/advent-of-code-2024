@@ -1,61 +1,39 @@
 import fs from'fs'
 
 const main = () => {
-    let reports = fs.readFileSync('./src/day-2.txt')
+
+    const logicRegex = /do\(\)([\s\S]*?)don't\(\)/g
+    const regex = /mul\([0-9]+,[0-9]+\)/g
+    let calls = fs.readFileSync('./src/day-3.txt')
     .toString()
-    .split("\n")
-    .map((report) => report.split(' ')
-    .map(x => parseInt(x)))
+    // .split("\n")
+    // .map((report) => report.split(' ')
+    // .map(x => parseInt(x)))
+    .match(logicRegex)
 
-    let safeReports = 0;
+    calls.push('<,:[*where()%mul(53,612)!^}&mul(3,518)??$~select()>??]mul(245,515),why()who()*@from()(where(242,190)mul(817,764)^select(),+who(851,301)where())from(){;mul(431,780)mul(110,982)what()what()]mul(441,829)??where()mul(269,112)>when()?who()<mul(131,147))}]what()^~)mul(186,137)when()\'when(443,998)when()+-^what(770,821)?mul(742,949)>$**#!@mul(343,569),;what()from(){(;}mul(486,404)why()]#~when()%@')
 
-    for (let i = 0; i < reports.length; i++) {
-        if (determineIfSafe(reports[i])) {
-            safeReports++
-        } else {
-            for (let j = 0; j < reports[i].length; j++) {
-                // zip through splices of array to determine if safe
-                let subReport = [...reports[i]]
-                subReport.splice(j, 1)
-                if (determineIfSafe(subReport)) {
-                    console.log(subReport)
-                    console.log(`Report ${i}, is safe with ${reports[i][j]} removed`)
-                    safeReports++
-                    break
-                }
+    console.log(calls.length)
+
+    let parsed = calls.reduce((acc, curr) => {
+        return [...acc, ...curr.match(regex)]
+    }, [])
+
+    console.log(parsed[parsed.length-2])
+
+    let total = 0;
+    for(let i =0; i<parsed.length; i++) {
+        let numbers = parsed[i].split(/mul\(|\)|,/g).reduce((acc, curr) => {
+            if(curr !== '') {
+                acc.push(parseInt(curr))
             }
-        }
+            return acc
+        }, [])
+        total += numbers[0] * numbers[1]
     }
-    console.log(safeReports)
-
+    console.log(total)
 }
 
-const determineIfSafe = (report: number[]) => { 
-    let direction = 0
-    let safe = true
-    for (let i =0; i < report.length-1; i++) {
-        if (report[i] > report[i+1]) { // decreasing
-            if(direction === 0) {
-                direction = -1
-            } 
-            if (direction === 1 || Math.abs(report[i] - report[i+1]) > 3) {
-                safe = false
-                break
-            } 
-        } else if (report[i] < report[i+1]) { // increasing
-            if(direction === 0) {
-                direction = 1
-            } 
-            if (direction === -1 || Math.abs(report[i] - report[i+1]) > 3) {
-                safe = false
-                break
-            } 
-        } else {
-            safe = false
-        }
-    }
-    return safe
-}
 
 main()
 
