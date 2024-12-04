@@ -2,37 +2,86 @@ import fs from'fs'
 
 const main = () => {
 
-    const logicRegex = /do\(\)([\s\S]*?)don't\(\)/g
-    const regex = /mul\([0-9]+,[0-9]+\)/g
-    let calls = fs.readFileSync('./src/day-3.txt')
+    // const logicRegex = /do\(\)([\s\S]*?)don't\(\)/g
+    // const regex = /mul\([0-9]+,[0-9]+\)/g
+    let rows = fs.readFileSync('./src/day-4.txt')
     .toString()
-    // .split("\n")
+    .split("\n")
     // .map((report) => report.split(' ')
     // .map(x => parseInt(x)))
-    .match(logicRegex)
+    // .match(logicRegex)
 
-    calls.push('<,:[*where()%mul(53,612)!^}&mul(3,518)??$~select()>??]mul(245,515),why()who()*@from()(where(242,190)mul(817,764)^select(),+who(851,301)where())from(){;mul(431,780)mul(110,982)what()what()]mul(441,829)??where()mul(269,112)>when()?who()<mul(131,147))}]what()^~)mul(186,137)when()\'when(443,998)when()+-^what(770,821)?mul(742,949)>$**#!@mul(343,569),;what()from(){(;}mul(486,404)why()]#~when()%@')
+    const wordSearch = rows.map((row) => row.split(''))
 
-    console.log(calls.length)
+    // console.log(wordSearch)
 
-    let parsed = calls.reduce((acc, curr) => {
-        return [...acc, ...curr.match(regex)]
-    }, [])
+    const map = {}
+    let count = 0
 
-    console.log(parsed[parsed.length-2])
-
-    let total = 0;
-    for(let i =0; i<parsed.length; i++) {
-        let numbers = parsed[i].split(/mul\(|\)|,/g).reduce((acc, curr) => {
-            if(curr !== '') {
-                acc.push(parseInt(curr))
+    for(let x = 0; x < wordSearch[0].length; x++) {
+        for(let y = 0; y < wordSearch.length; y++) {
+            if(checkXMas(wordSearch, x, y)){
+                count += 1
             }
-            return acc
-        }, [])
-        total += numbers[0] * numbers[1]
+        }
     }
-    console.log(total)
+
+    // console.log(map['XMAS'] + map['SAMX'])
+    console.log(count)
 }
+
+const addToMap = (map, key) => {
+    if (map[key]) {
+        map[key]++
+    } else {
+        map[key] = 1
+    }
+}
+
+const nSearch = (map, wordSearch, x, y) => { 
+    if(y < 3) {return}
+    addToMap(map, wordSearch[y][x] + wordSearch[y-1][x] + wordSearch[y-2][x] + wordSearch[y-3][x])
+}
+
+const nwSearch = (map, wordSearch, x, y) => { 
+    if(y < 3 || x < 3) {return}
+    addToMap(map, wordSearch[y][x] + wordSearch[y-1][x-1] + wordSearch[y-2][x-2] + wordSearch[y-3][x-3])
+}
+
+const swSearch = (map, wordSearch, x, y) => { 
+    if(y > wordSearch.length - 4 || x < 3) {return}
+    addToMap(map, wordSearch[y][x] + wordSearch[y+1][x-1] + wordSearch[y+2][x-2] + wordSearch[y+3][x-3])
+}
+
+const wSearch = (map, wordSearch, x, y) => { 
+    if(x < 3) {return}
+    addToMap(map, wordSearch[y][x] + wordSearch[y][x-1] + wordSearch[y][x-2] + wordSearch[y][x-3])
+}
+
+const checkXMas = (wordSearch, x, y) => { 
+    if(x < 1 || x > wordSearch[0].length - 2 || y < 1 || y > wordSearch.length - 2) {return}
+    if(wordSearch[y][x] === 'A') {
+        let left = wordSearch[y-1][x-1] + wordSearch[y][x] + wordSearch[y+1][x+1]
+        let right = wordSearch[y+1][x-1] + wordSearch[y][x] + wordSearch[y-1][x+1]
+        if(isXMas(left) && isXMas(right)) {
+            return true
+        }
+    }
+}
+
+const isXMas = (word) => { 
+    return word === 'MAS' || word === 'SAM'
+}
+
+// const sSearch = (map, wordSearch, x, y) => { 
+//     if(y > wordSearch.length - 4) {return}
+//     addToMap(map, wordSearch[y][x] + wordSearch[y+1][x] + wordSearch[y+2][x] + wordSearch[y+3][x])
+// }
+
+// const eSearch = (map, wordSearch, x, y) => { 
+//     if(x > wordSearch[0].length - 4) {return}
+//     addToMap(map, wordSearch[y][x] + wordSearch[y][x+1] + wordSearch[y][x+2] + wordSearch[y][x+3])
+// }
 
 
 main()
